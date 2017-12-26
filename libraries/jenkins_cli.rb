@@ -2,47 +2,55 @@ require 'mixlib/shellout'
 
 class JenkinsCLI < Inspec.resource(1)
     name 'jenkins_cli'
-   
+
     desc '
       Check jenkins configuration using the jenkins CLI jar.
     '
    
     example "
-      describe jenkins_cli('dummy_service_6') do
-        its('port') { should eq('6382') }
-        its('slave-priority') { should eq('69') }
+      describe jenkins_cli do
+        it { should exist }
       end
     "
    
     def initialize(options)
       @java_home = options['java_home'] || '/usr/bin/java'
       jar_path = options['jar_path'] || '/tmp/kitchen/cache/jenkins-cli.jar'
-      @jar = inspec.file(tmp)
-      @source = options['source'] || 'localhost' 
+      @jar = inspec.file(jar_path)
+      return skip_resource "Can't find cli \"#{@jar_path}\"" if !@jar.file?
+      @source = options['source'] || 'http://localhost' 
       @port = options['port'] || 8080
       @username = options['username']
       @password = options['password']
-      @cli = "#{@java_home} #{@jar_path} -s #{@source}:#{@port}"
+      @cli = "#{@java_home} -jar #{jar_path} -s #{@source}:#{@port}"
       @credentials = "--username #{@username} --password #{@password}" if @username
-      return skip_resource "Can't find cli \"#{@jar_path}\"" if !@jar.file?
     end
    
     def plugins
       exec('list-plugins')
+      return self
     end
    
-    def exec(command)
-      @params = {}
+    def exec(cli_func)
+      @command = "#{@cli} #{cli_func}"
+      @command = "#{tmp} #{@credentials}" if @credentials
       begin
-        cmd = "#{@cli} #{command}"
-        cmd = "#{tmp} #{@credentials}" if @credentials
-        res = inspec.command(cmd)
-        @params['stdout'] = res.stdout
-        @params['stderr'] = res.stderr
-        @params['exit_status'] = res.exit_status
+        @res = inspec.command(@command)
       rescue Exception
-        return skip_resource "Command #{cmd} failed in error: #{$!}"
+        return skip_resource "Command #{@command} failed in error: #{$!}"
       end
+    end
+
+    def stdout
+      @res.stdout
+    end
+
+    def stderr
+      @res.stderr
+    end
+
+    def exit_status
+      @res.exit_status.to_i
     end
 
     def exists?
