@@ -20,14 +20,18 @@ class JenkinsCLI < Inspec.resource(1)
       return skip_resource "Can't find cli \"#{@jar_path}\"" if !@jar.file?
       @source = options['source'] || 'http://localhost' 
       @port = options['port'] || 8080
-      @username = options['username']
-      @password = options['password']
+      @credentials = "--username #{options['username']}" if options['username']
+      @credentials += "--password #{options['password']}" if options['password']
       @cli = "#{@java_home} -jar #{jar_path} -s #{@source}:#{@port}"
-      @credentials = "--username #{@username} --password #{@password}" if @username
     end
    
     def plugins
       exec('list-plugins')
+      return self
+    end
+
+    def jobs
+      exec('list-jobs')
       return self
     end
    
