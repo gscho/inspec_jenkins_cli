@@ -33,7 +33,7 @@ class JenkinsCLI < Inspec.resource(1)
    
     def exec(cli_func)
       @command = "#{@cli} #{cli_func}"
-      @command = "#{tmp} #{@credentials}" if @credentials
+      @command = "#{@command} #{@credentials}" if @credentials
       begin
         @res = inspec.command(@command)
       rescue Exception
