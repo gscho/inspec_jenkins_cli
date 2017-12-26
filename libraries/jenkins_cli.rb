@@ -8,6 +8,8 @@ class JenkinsCLI < Inspec.resource(1)
     '
    
     example '
+      config = {}
+      config['cmd']
       describe jenkins_cli('dummy_service_6') do
         its('port') { should eq('6382') }
         its('slave-priority') { should eq('69') }
@@ -15,22 +17,24 @@ class JenkinsCLI < Inspec.resource(1)
     '
    
     def initialize(options)
-      @params = {}
-      @command = options['cmd']
+      @java_home = options['java_home'] || '/usr/bin/java'
+      @jar_path = options['jar_path'] || '/tmp/kitchen/cache/jenkins-cli.jar'
+      @source = options['source'] || 'localhost' 
       @port = options['port'] || 8080
       @username = options['username']
       @password = options['password']
-      cmd = Mixlib::ShellOut.new(@command)
+      @cli = "#{java_home} #{jar_path} -s #{source}:#{port}" 
+    end
+   
+    def plugins
+      @params = {}
+      cmd = Mixlib::ShellOut.new(@cli)
       begin
         cmd.run_command
-        @params['content'] = cmd.stdout
+        @params['plugins'] = cmd.stdout
       rescue Exception
         return skip_resource "#{@file}: #{$!}"
       end
-    end
-   
-    def exists?
-      @file.file?
     end
    
     def method_missing(name)
