@@ -1,11 +1,12 @@
 # Jenkins CLI InSpec Resource
 
-This InSpec profile contains the jenkins_cli resource which can be used to test a running jenkins instance.
+This InSpec profile contains the jenkins_cli resource which can be used to test a running jenkins instance. The resource can be used to list plugins, jobs, credentials, etc. which can be useful when writing integration tests. Currently the resource has only been tested against SLES 12 but it should work with any 'nix based OS.
 
 ## Requirements
 
 ### Tested Platforms
 - SLES 12
+- TBD.
 
 ### Tested Inspec Version
 - InSpec 1.48.0
