@@ -1,19 +1,24 @@
 # encoding: utf-8
-# copyright: 2017, The Authors
+# copyright: 2017, Greg Schofield
 
-title 'sample section'
+title 'jenkins_cli examples'
 
-# you can also use plain tests
-describe file('/tmp') do
-  it { should be_directory }
+config = {}
+config['username'] = 'test'
+config['password'] = 'foo'
+
+# check for the existance of the jenkins-cli.jar
+describe jenkins_cli(config) do
+  it { should exist }
 end
 
-# you add controls here
-control 'tmp-1.0' do                        # A unique ID for this control
-  impact 0.7                                # The criticality, if this control fails.
-  title 'Create /tmp directory'             # A human-readable title
-  desc 'An optional description...'
-  describe file('/tmp') do                  # The actual test
-    it { should be_directory }
+# Control for checking for the existance of a jenkins plugin
+control 'blueocean-plugin-1.0' do
+  impact 1.0
+  title 'Check for blueocean plugin'
+  desc 'The blueocean plugin should be installed on the jenkins instance'
+  describe jenkins_cli(config).plugins do
+    its('stdout') { should match(/blueocean/) }
+    its('exit_status') { should be 0 }
   end
 end
