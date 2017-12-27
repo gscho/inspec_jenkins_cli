@@ -21,7 +21,7 @@ class JenkinsCLI < Inspec.resource(1)
       @source = options['source'] || 'http://localhost' 
       @port = options['port'] || 8080
       @credentials = "--username #{options['username']}" if options['username']
-      @credentials += "--password #{options['password']}" if options['password']
+      @credentials += " --password #{options['password']}" if options['password']
       @cli = "#{@java_home} -jar #{jar_path} -s #{@source}:#{@port}"
     end
    
