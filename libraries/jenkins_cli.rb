@@ -14,14 +14,14 @@ class JenkinsCLI < Inspec.resource(1)
     "
    
     def initialize(options)
-      @java_home = options['java_home'] || '/usr/bin/java'
-      jar_path = options['jar_path'] || '/tmp/kitchen/cache/jenkins-cli.jar'
+      @java_home = options[:java_home] || '/usr/bin/java'
+      jar_path = options[:jar_path] || '/tmp/kitchen/cache/jenkins-cli.jar'
       @jar = inspec.file(jar_path)
       return skip_resource "Can't find cli \"#{@jar_path}\"" if !@jar.file?
-      @source = options['source'] || 'http://localhost' 
-      @port = options['port'] || 8080
-      @credentials = "--username #{options['username']}" if options['username']
-      @credentials += " --password #{options['password']}" if options['password']
+      @source = options[:source] || 'http://localhost' 
+      @port = options[:port] || 8080
+      @credentials = "--username #{options[:username]}" if options[:username]
+      @credentials += " --password #{options[:password]}" if options[:password]
       @cli = "#{@java_home} -jar #{jar_path} -s #{@source}:#{@port}"
     end
    

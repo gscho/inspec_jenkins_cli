@@ -4,8 +4,8 @@
 title 'jenkins_cli examples'
 
 config = {}
-config['username'] = 'test'
-config['password'] = 'foo'
+config[:username] = 'test'
+config[:password] = 'foo'
 
 # check for the existance of the jenkins-cli.jar
 describe jenkins_cli(config) do

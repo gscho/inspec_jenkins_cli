@@ -16,18 +16,18 @@ This InSpec profile contains the jenkins_cli resource which can be used to test 
 
 ### jenkins_cli
 The base resource. It can be used for checking for the existance for the jenkins-cli.jar file. It also accepts a hash with the following (optional) parameters:  
-`java_home` - default is `'/usr/bin/java'`  
-`jar_path` - default is `'/tmp/kitchen/cache/jenkins-cli.jar'`  
-`source` - default is `'http://localhost'`  
-`port` -  default is `8080`  
-`username` - default is `nil`  
-`password` - default is `nil`
+`:java_home` - default is `'/usr/bin/java'`  
+`:jar_path` - default is `'/tmp/kitchen/cache/jenkins-cli.jar'`  
+`:source` - default is `'http://localhost'`  
+`:port` -  default is `8080`  
+`:username` - default is `nil`  
+`:password` - default is `nil`
 
 Example:
 ```
 config = {}
-config['username'] = 'test'
-config['password'] = 'foo'
+config[:username] = 'test'
+config[:password] = 'foo'
 
 # check for the existance of the jenkins-cli.jar
 describe jenkins_cli(config) do
