@@ -41,7 +41,7 @@ class JenkinsCLI < Inspec.resource(1)
     @command = "#{@command} #{@credentials}" if @credentials
     begin
       @res = inspec.command(@command)
-    rescue Exception
+    rescue StandardError
       return skip_resource "Command #{@command} failed in error: #{$ERROR_INFO}"
     end
   end
