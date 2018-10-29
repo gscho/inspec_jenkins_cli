@@ -1,5 +1,6 @@
 require 'mixlib/shellout'
 require 'english'
+require 'fileutils'
 require 'net/http'
 require 'uri'
 
@@ -19,30 +20,32 @@ class JenkinsCLI < Inspec.resource(1)
   def initialize(options)
     @java_home = options[:java_home] || '/usr/bin/java'
     @jar_path = options[:jar_path] || '/tmp/kitchen/cache/jenkins-cli.jar'
-    @jar = inspec.file(@jar_path)
-    do_download_cli(options) unless @jar.file?
     @source = options[:source] || 'http://localhost'
     @port = options[:port] || 8080
+    @jar = do_download_cli(options)
+    return skip_resource "Can't find cli \"#{@jar_path}\"" unless @jar.file?
     @credentials = "--username #{options[:username]}" if options[:username]
     @credentials += " --password #{options[:password]}" if options[:password]
     @cli = "#{@java_home} -jar #{@jar_path} -s #{@source}:#{@port}"
   end
 
-  def download_cli(opts)
-    uri = URI.parse("http://#{@source}:#{@port}/jnlpJars/jenkins-cli.jar")
-    request = Net::HTTP::Get.new(uri)
-    request.basic_auth(opts[:username], opts[:password])
-    f = open(File.dirname(@jar_path))
-    begin
-      response = Net::HTTP.start(uri.hostname, uri.port, req_options) do |http|
+  def do_download_cli(opts)
+    cli = inspec.file(@jar_path)
+    if cli.file?
+      return cli
+    else
+      uri = URI.parse("#{@source}:#{@port}/jnlpJars/jenkins-cli.jar")
+      request = Net::HTTP::Get.new(uri)
+      request.basic_auth(opts[:username], opts[:password])
+      FileUtils.mkdir_p(File.dirname(@jar_path))
+      response = Net::HTTP.start(uri.hostname, uri.port) do |http|
         http.request(request) do |resp|
-          resp.read_body do |segment|
-              f.write(segment)
+          open(@jar_path, "wb") do |f|
+            f.write(resp.body)
           end
         end
       end
-    ensure
-      f.close
+      return inspec.file(@jar_path)
     end
   end
 
